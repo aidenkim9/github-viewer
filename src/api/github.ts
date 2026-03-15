@@ -1,6 +1,6 @@
-import type { githubUser } from "../types/github";
+import type { GithubUser, GithubRepo } from "../types/github";
 
-export async function fetchUser(username: string): Promise<githubUser> {
+export async function fetchUser(username: string): Promise<GithubUser> {
   const response = await fetch(`https://api.github.com/users/${username}`);
 
   if (!response.ok) {
@@ -10,7 +10,7 @@ export async function fetchUser(username: string): Promise<githubUser> {
   return response.json();
 }
 
-export async function fetchRepo(username: string) {
+export async function fetchRepo(username: string): Promise<GithubRepo[]> {
   const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`);
 
   if (!response.ok) {
