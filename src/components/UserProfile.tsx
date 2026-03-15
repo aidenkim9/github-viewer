@@ -1,16 +1,16 @@
 import type { GithubUser } from "../types/github";
 
-interface userProfileProps {
+interface UserProfileProps {
   user: GithubUser;
 }
 
-export default function UserProfile({ user }: userProfileProps) {
+export default function UserProfile({ user }: UserProfileProps) {
   return (
     <div className="bg-[#161b22] border border-[#30363d] py-5 pl-5 pr-10 rounded flex justify-between items-center">
       <section className="flex gap-5">
-        <img src={user.avatar_url} alt="" className="w-17 h-17 rounded-full" />
+        <img src={user.avatar_url} alt={user.name} className="w-17 h-17 rounded-full" />
         <div className="text-[#8b949e]">
-          <p className="text-stone-200 text-2xl font-extrabold">{user?.name}</p>
+          <p className="text-stone-200 text-2xl font-extrabold">{user.name}</p>
           <p className="text-[#58a6ff]">
             <a href={user.html_url}>@{user.login}</a>
           </p>

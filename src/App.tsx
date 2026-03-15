@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Header from "./components/Header";
 import RepoList from "./components/RepoList";
 import UserProfile from "./components/UserProfile";
@@ -18,31 +18,17 @@ function App() {
     try {
       const user = await fetchUser(username);
       setUser(user);
-      const res = await fetchRepo(user!.login);
+      const res = await fetchRepo(user.login);
       setRepos(res);
     } catch (err) {
-      setError("An Error Accured!");
+      setError("An Error Occurred!");
       setUser(undefined);
       setRepos(undefined);
     } finally {
       setLoading(false);
     }
   }
-  let content = (
-    <>
-      {!user && (
-        <p className="text-center text-[#8b949e] font-bold text-xl bg-[#161b22] border border-[#30363d] py-10 rounded">
-          Search Github User!
-        </p>
-      )}
-      {user && repos && (
-        <>
-          <UserProfile user={user} />
-          <RepoList repos={repos} />
-        </>
-      )}
-    </>
-  );
+  let content: ReactNode;
 
   if (loading)
     content = (
@@ -50,12 +36,24 @@ function App() {
         Loading...
       </p>
     );
-
-  if (error)
+  else if (error)
     content = (
       <p className="text-center text-[#8b949e] font-bold text-xl bg-[#161b22] border border-[#30363d] py-10 rounded">
         {error}
       </p>
+    );
+  else if (!user)
+    content = (
+      <p className="text-center text-[#8b949e] font-bold text-xl bg-[#161b22] border border-[#30363d] py-10 rounded">
+        Search Github User!
+      </p>
+    );
+  else
+    content = (
+      <>
+        <UserProfile user={user} />
+        <RepoList repos={repos || []} />
+      </>
     );
 
   return (
