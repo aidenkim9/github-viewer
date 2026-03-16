@@ -2,47 +2,39 @@ import { useState, type ReactNode } from "react";
 import Header from "./components/Header";
 import RepoList from "./components/RepoList";
 import UserProfile from "./components/UserProfile";
-import type { GithubRepo, GithubUser } from "./types/github";
 import { fetchRepo, fetchUser } from "./api/github";
+import { useQuery } from "@tanstack/react-query";
+async function searchUser(username: string) {
+  const user = await fetchUser(username);
+  const repos = await fetchRepo(user.login);
+
+  return { user, repos };
+}
 
 function App() {
-  const [user, setUser] = useState<GithubUser>();
-  const [repos, setRepos] = useState<GithubRepo[]>();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  async function searchUser(username: string) {
-    setLoading(true);
-    setError(null);
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["search", searchTerm],
+    queryFn: () => searchUser(searchTerm),
+    enabled: !!searchTerm,
+  });
 
-    try {
-      const user = await fetchUser(username);
-      setUser(user);
-      const res = await fetchRepo(user.login);
-      setRepos(res);
-    } catch (err) {
-      setError("An Error Occurred!");
-      setUser(undefined);
-      setRepos(undefined);
-    } finally {
-      setLoading(false);
-    }
-  }
   let content: ReactNode;
 
-  if (loading)
+  if (isLoading)
     content = (
       <p className="text-center text-[#8b949e] font-bold text-xl bg-[#161b22] border border-[#30363d] py-10 rounded">
         Loading...
       </p>
     );
-  else if (error)
+  else if (isError)
     content = (
       <p className="text-center text-[#8b949e] font-bold text-xl bg-[#161b22] border border-[#30363d] py-10 rounded">
-        {error}
+        {error.message}
       </p>
     );
-  else if (!user)
+  else if (!data?.user)
     content = (
       <p className="text-center text-[#8b949e] font-bold text-xl bg-[#161b22] border border-[#30363d] py-10 rounded">
         Search Github User!
@@ -51,15 +43,14 @@ function App() {
   else
     content = (
       <>
-        <UserProfile user={user} />
-        <RepoList repos={repos || []} />
+        <UserProfile user={data.user} />
+        <RepoList repos={data.repos || []} />
       </>
     );
 
   return (
     <div className="min-h-full">
-      <Header search={searchUser} />
-
+      <Header search={setSearchTerm} />
       <main className="p-10">{content}</main>
     </div>
   );

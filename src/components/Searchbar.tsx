@@ -7,7 +7,7 @@ interface SearchbarProps {
 export default function Searchbar({ search }: SearchbarProps) {
   const searchInput = useRef<HTMLInputElement>(null);
   return (
-    <p className="flex gap-2">
+    <div className="flex gap-2">
       <input
         type="text"
         id="search"
@@ -16,6 +16,14 @@ export default function Searchbar({ search }: SearchbarProps) {
         className="bg-[#0d1117] text-stone-200 border border-[#30363d] px-3 py-1 rounded-md outline-none w-70"
         ref={searchInput}
         required
+        onKeyDown={(e) => {
+          console.log(e.key);
+          if (e.key === "Enter") {
+            const value = searchInput.current?.value.trim() || "";
+            if (!value) return;
+            search(value);
+          }
+        }}
       />
       <button
         className="text-stone-200 bg-[#238636] px-3 py-1 rounded cursor-pointer hover:bg-[#207d33]"
@@ -27,6 +35,6 @@ export default function Searchbar({ search }: SearchbarProps) {
       >
         Search
       </button>
-    </p>
+    </div>
   );
 }
